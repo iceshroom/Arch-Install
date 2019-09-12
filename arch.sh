@@ -13,6 +13,8 @@ TARGET_DISK='/dev/sda'
 
 #自动分区中将要分的各个区大小
 PARTITION_TO_MAKE=''
+
+#需要分区标志，设置之后启用自动分区，此变量由脚本自动设置，一般不需修改
 NEED_MAKE_PARTITION='0'
 
 #自动分区所创建的新分区
@@ -36,8 +38,6 @@ NOCONFIRM=''
 #格式为 /dev/sd[a-z][1-9]
 PROTECT_DISK=''
 
-#自定义安装包
-MANUAL_PACKAGE=''
 
 #基本安装包
 PACKAGE=( vim gcc mesa ttf-dejavu wqy-zenhei alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring )
@@ -66,15 +66,15 @@ print_help()
     -h Print this help.
 
     -p Auto partition，Use：-p \"*G,*G, ...\" Replace the *  with the size of the partition you want，Should specified M and G  ，like \"20G,512M ...\"
-       Use ”FULL“ to divide the remaining disk space into one partition，So \"FULL\" must be the last parameter，like: \"512M,20G,FULL\"。
-       If there are multiple parameters，Use \"\"  to enclose parameters and Separate by ','。If success，The script will output the result of the partition at the end.
+       Use ”FULL“ to divide the remaining disk space into one partition，So \"FULL\" must be the last parameter，like: \"512M,20G,FULL\".
+       If there are multiple parameters，Use \"\"  to enclose parameters and Separate by ','.If success，The script will output the result of the partition at the end.
        If the partition fails (the expected number of partitions is less than the actual number of partitions), the script exits directly.
 
     -r/--rootdisk Specify\"${red} / ${plain}\" partition，Use ：--rootdisk 1~128 or -r 1~128 (GPT),Default is the second partition make by Auto partition.
 
     -b/--bootdisk Specify\"${red} /boot/efi ${plain}\"partition，Use ：--bootdisk 1~128 or -b 1~128 (GPT), If no partition on the disk and -s is Used , It will be automated create ，If there was already a EFI partition, It will be auto detect and use.
 
-    -y  Auto select yes, In the same time pacman will use --noconfirm。
+    -y  Auto select yes, In the same time pacman will use --noconfirm.
         "
     exit 0
 }
@@ -112,7 +112,7 @@ check_partition_to_make()
 #检查网络连接
 check_net()
 {
-    ping -c 4 baidu.com
+    ping -c 4 mirrors.163.com
     if [ $? -eq 0 ]; then
         echo -e "${green}Network connect!${plain}"
         return 0
@@ -127,7 +127,7 @@ check_net()
 #保护已经存在的分区
 set_protect_disk()
 {
-    PROTECT_DISK=($( ls ${TARGET_DISK}* | grep -v "^${TARGET_DISK}$" ) "end")
+    PROTECT_DISK=($( ls ${TARGET_DISK}* | grep -v "^${TARGET_DISK}$" ))
 }
 
 #更新 NEWDISK 数组
@@ -188,15 +188,15 @@ diskpart()
     do
         if [ "${PARTITION_TO_MAKE[$disk_num]}" !=  'FULL' ] ; then
 	    if [ -n "$IS_MBR" ] ; then
-            	echo -e "n\n\n\n\n+${PARTITION_TO_MAKE[$disk_num]}\nw" | fdisk $TARGET_DISK 
+            	echo -e "n\n\n\n\n+${PARTITION_TO_MAKE[$disk_num]}\nw" | fdisk -B $TARGET_DISK 
 	    else
-		echo -e "n\n\n\n+${PARTITION_TO_MAKE[$disk_num]}\nw" | fdisk $TARGET_DISK
+		echo -e "n\n\n\n+${PARTITION_TO_MAKE[$disk_num]}\nw" | fdisk -B $TARGET_DISK
 	    fi
         else
 	    if [ -n "$IS_MBR" ] ; then
-            	echo -e "n\n\n\n\n\nw" | fdisk $TARGET_DISK
+            	echo -e "n\n\n\n\n\nw" | fdisk -B $TARGET_DISK
 	    else
-		echo -e "n\n\n\n\nw" | fdisk $TARGET_DISK
+		echo -e "n\n\n\n\nw" | fdisk -B $TARGET_DISK
 	    fi	    
         fi
             partprobe
@@ -207,10 +207,14 @@ diskpart()
     find_new_disk
 
     if [ -z "$BOOT_PARTITION" ] ; then
-        BOOT_PARTITION="${TARGET_DISK}1"
+        BOOT_PARTITION="${NEWDISK[0]}"
     fi
     if [ -z "$INSTALL_PARTITION" ] ; then
-        INSTALL_PARTITION="${NEWDISK[1]}"
+	if [ ${PARTITION_TO_MAKE[0]} == 'FULL' ] ; then
+            INSTALL_PARTITION="${NEWDISK[0]}"
+	else
+	    INSTALL_PARTITION="${NEWDISK[1]}"
+	fi
     fi
 
 
@@ -251,6 +255,7 @@ pre_download()
         pacman -Sy $NOCONFIRM expect
 }
 
+#通过fdisk -l寻找已经存在的efi或BIOS boot分区
 find_efi()
 {
     set_protect_disk
@@ -258,18 +263,41 @@ find_efi()
     efi_pa=''
     while [ "$num" -lt "${#PROTECT_DISK[@]}" ] && [ -z "$efi_pa" ]
     do
-        efi_pa=$( echo $( fatlabel ${PROTECT_DISK[$num]} ) | grep -i "EFI" )
+        if [ "$IS_UEFI" -eq '1' ] ; then
+            efi_pa=$( fdisk -l "$TARGET_DISK" | grep "$TARGET_DISK" | grep -v Disk | grep EFI | awk '{print $1}' )
+        else
+            efi_pa=$( fdisk -l "$TARGET_DISK" | grep "$TARGET_DISK" | grep -v Disk | grep "BIOS boot" | awk '{print $1}' )
+        fi 
         num=$(( $num + 1 ))
     done
     num=$(( $num - 1 ))
     if [ -n "$efi_pa" ] ; then
-        BOOT_PARTITION=${PROTECT_DISK[$num]}
-        echo "$BOOT_PARTITION!!!!!!!!!!!!!!"
+        BOOT_PARTITION=${efi_pa}
+        echo -e "${red} Find Boot partition at ${BOOT_PARTITION} .${plain}"
         return 0
     fi
     
     return 1
 }
+
+#检查系统中存在的所有磁盘，通过查找BIOS boot 或 EFI启动分区来设置启动磁盘，在MBR+BIOS环境下将TARGET_DISK设置为/dev/sda
+find_target_disk()
+{
+    target_temp=($(ls /dev/sd* | grep "^/dev/sd.$") $(ls /dev/nvme0n* | grep "^/dev/nvme0n.$"))
+    num1='0'
+    BIOS_OR_UEFI
+    while [ "$num1" -lt "${#target_temp[@]}" ]
+    do
+        TARGET_DISK=${target_temp[num1]}
+        find_efi
+        if [ $? -eq '0' ] ; then
+            echo -e "${red} Set Target disk at ${TARGET_DISK} ${plain}"
+            break
+        fi
+        num1=$(( $num1 + 1 ))
+    done
+}
+
 
 #参数处理函数，按照参数来初始化全局变量
 deal_opt()
@@ -297,19 +325,27 @@ deal_opt()
                    i=$(($i+1))
                    ;;
             "-s")  
-                   BIOS_OR_UEFI
-                   if [ "$IS_UEFI" -eq '1' ] ; then
-                        deal_opt -d /dev/sda -p "256M,FULL" -g d
-                        break
+                   if [ "$IS_UEFI" == "1" ] ; then
+                        if [ -z "$BOOT_PARTITION" ] ; then
+                            deal_opt -p "256M,FULL" -g d
+                        else
+                            deal_opt -p "FULL" -g d
+                        fi
                    else
-                        deal_opt -d /dev/sda -p "1M,FULL" -g d
-                        break
+                        if [ -z "$BOOT_PARTITION" ] ; then
+                            deal_opt -p "1M,FULL" -g d
+                        else
+                            deal_opt -p "FULL" -g d
+                        fi
                    fi
                    break
                    ;;
             "-d")
                   i=$(($i+1))
                   TARGET_DISK=$( echo ${opt[$i]} | grep -E "^/dev/sd[a-z]$" )
+		          if [ -z "$TARGET_DISK" ] ; then
+		  	        TARGET_DISK=$( echo ${opt[$i]} | grep -E "^/dev/nvme0n.$" )
+		          fi
                   if [ -z "$TARGET_DISK" ] ; then
                     echo -e "${red}Unreconized disk: ${opt[$i]}${plain}"
                     exit 0
@@ -335,7 +371,12 @@ deal_opt()
                     echo -e "${red}Partition illegal: $TARGET_DISK${opt[$i]}${plain} , should in range ${TARGET_DISK}1~128. "
                     exit 0;
                   fi
-                  INSTALL_PARTITION=$TARGET_DISK${opt[$i]}
+		  temp_tar=$( echo $TARGET_DISK | grep nvme )
+		  if [ -z "$temp_tar" ] ; then
+                  	INSTALL_PARTITION=$TARGET_DISK${opt[$i]}
+		  else
+			INSTALL_PARTITION="${TARGET_DISK}p${opt[$i]}"
+		  fi
                   i=$(($i+1))
                   ;;
             "-b" | "--bootdisk")
@@ -366,6 +407,7 @@ deal_opt()
 }
 
 #main
+#直接运行脚本不带参数，输出-h然后退出，其他情况先运行find_target_disk设置全局变量然后再处理参数.
 if [ $# -eq 0 ]; then
     deal_opt -h
 else
@@ -373,11 +415,10 @@ else
 	    echo -e "${red}need been root，use sudo${plain} "
 	    exit 1;
     fi  
+    find_target_disk
     deal_opt $@
 fi
 
-find_efi
-efi_result="$?"
 if [ "$NEED_MAKE_PARTITION" -eq '1' ]; then
 diskpart
 is_diskpart_success
@@ -392,7 +433,7 @@ BIOS_OR_UEFI
 #确定分区是MBR或GPT
 EFI_N=$(fdisk -l ${TARGET_DISK} | grep dos)
 
-#当在BIOS+GPT时，需要BIOS boot分区。而在UEFI时只需要EFI。
+#当在BIOS+GPT时，需要BIOS boot分区.而在UEFI时只需要EFI.
 if [ "$IS_UEFI" -eq '1' ] ; then
     if [ -n "$EFI_N" ] ;then
         EFI_N="ef"
@@ -407,14 +448,14 @@ else
     fi
 fi
 
-if [ "$efi_result" -eq "1" ] ; then
+if [ "$efi_result" -eq '1' ] ; then
     echo -e "${red} Format EFI ( bios boot ) partition! Are you sure to continue?[y/n] ${plain}"
     read -a yesno
     if [ "$yesno" = "y" ]; then
         mkfs.fat -F32 $BOOT_PARTITION
         BOOT_PARTITION_NUM=$( echo $BOOT_PARTITION | sed "s/\/dev\/sd.//g" )
         fatlabel $BOOT_PARTITION EFI
-        echo -e "t\n${BOOT_PARTITION_NUM}\n${EFI_N}\nw" | fdisk $TARGET_DISK
+        echo -e "t\n${BOOT_PARTITION_NUM}\n${EFI_N}\nw" | fdisk -B $TARGET_DISK
     else
         echo -e "${red} CANCEL! ${plain}"
         exit 1
