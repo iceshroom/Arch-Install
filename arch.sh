@@ -17,6 +17,9 @@ PARTITION_TO_MAKE=''
 #需要分区标志，设置之后启用自动分区，此变量由脚本自动设置，一般不需修改
 NEED_MAKE_PARTITION='0'
 
+#需要格式化启动分区标志，此变量由脚本自动设置，一般不需修改
+EFI_FORMAT='0'
+
 #自动分区所创建的新分区
 NEWDISK=''
 
@@ -208,6 +211,7 @@ diskpart()
 
     if [ -z "$BOOT_PARTITION" ] ; then
         BOOT_PARTITION="${NEWDISK[0]}"
+        EFI_FORMAT='1'
     fi
     if [ -z "$INSTALL_PARTITION" ] ; then
 	if [ ${PARTITION_TO_MAKE[0]} == 'FULL' ] ; then
@@ -448,7 +452,7 @@ else
     fi
 fi
 
-if [ "$efi_result" -eq '1' ] ; then
+if [ "$EFI_FORMAT" -eq '1' ] ; then
     echo -e "${red} Format EFI ( bios boot ) partition! Are you sure to continue?[y/n] ${plain}"
     read -a yesno
     if [ "$yesno" = "y" ]; then
