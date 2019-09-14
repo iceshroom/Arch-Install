@@ -46,10 +46,10 @@ PROTECT_DISK=''
 PACKAGE=( vim gcc mesa ttf-dejavu wqy-zenhei alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring )
 
 #自定义桌面环境
-GNOME_DESKTOP=( xorg gnome gnome-extra gdm gnome-tweak-tool)
-DEEPIN_DESKTOP=( xorg deepin deepin-extra deepin-anything-arch )
+GNOME_DESKTOP=( xorg gnome gnome-tweak-tool ibus ibus-libpinyin )
+DEEPIN_DESKTOP=( xorg deepin deepin-extra deepin-anything-arch fcitx )
 DESKTOP=(${DEEPIN_DESKTOP[@]})
-DE='d'
+DE='g'
 
 ###############################
 
@@ -60,7 +60,7 @@ print_help()
 
     -d Specify installation disk，please use: -d /dev/sd* , Default is/dev/sda
 
-    -g Set Graphic Interface environment. Follow g set to gnome.  Follow d set to DDE ,Default is DDE.
+    -g Set Graphic Interface environment. Follow g set to gnome.  Follow d set to DDE ,Default is gnome.
        Use: -g [dg]
 
     -s Default mode, ${red}(Best use this select when no other partition in your disk) ${plain}，Running scripts with default values，If this parameter is used, all other parameters will fail.
@@ -333,15 +333,15 @@ deal_opt()
             "-s")  
                    if [ "$IS_UEFI" == "1" ] ; then
                         if [ -z "$BOOT_PARTITION" ] ; then
-                            deal_opt -p "256M,FULL" -g d
+                            deal_opt -p "256M,FULL" -g g
                         else
-                            deal_opt -p "FULL" -g d
+                            deal_opt -p "FULL" -g g
                         fi
                    else
                         if [ -z "$BOOT_PARTITION" ] ; then
-                            deal_opt -p "1M,FULL" -g d
+                            deal_opt -p "1M,FULL" -g g
                         else
-                            deal_opt -p "FULL" -g d
+                            deal_opt -p "FULL" -g g
                         fi
                    fi
                    break
