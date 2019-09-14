@@ -292,14 +292,16 @@ find_target_disk()
     BIOS_OR_UEFI
     while [ "$num1" -lt "${#target_temp[@]}" ]
     do
-        TARGET_DISK=${target_temp[num1]}
+        TARGET_DISK=${target_temp[$num1]}
         find_efi
         if [ $? -eq '0' ] ; then
             echo -e "${red} Set Target disk at ${TARGET_DISK} ${plain}"
-            break
+            return
         fi
         num1=$(( $num1 + 1 ))
     done
+    TARGET_DISK='/dev/sda'
+    echo -e "${red} Default Target disk at ${TARGET_DISK} ${plain}"
 }
 
 
