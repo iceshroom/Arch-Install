@@ -480,7 +480,7 @@ fi
 check_net
 timedatectl set-timezone Asia/Shanghai
 timedatectl set-ntp true
-echo "DNS=8.8.8.8" >> /etc/systemd/resolved.conf
+echo "DNS=223.5.5.5" >> /etc/systemd/resolved.conf
 systemctl start systemd-resolved.service
 
 set_mirror
@@ -553,7 +553,7 @@ else
 fi
 echo 'sleep 1
 grub-mkconfig -o /boot/grub/grub.cfg
-echo "DNS=8.8.8.8" >> /etc/systemd/resolved.conf
+echo "DNS=223.5.5.5" >> /etc/systemd/resolved.conf
 ' >> /mnt/set.sh
 
 if [ "$DE" = 'd' ];then
