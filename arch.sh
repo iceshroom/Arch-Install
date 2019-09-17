@@ -46,8 +46,8 @@ PROTECT_DISK=''
 PACKAGE=( vim gcc mesa ttf-dejavu wqy-zenhei alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring )
 
 #自定义桌面环境
-GNOME_DESKTOP=( xorg gnome gnome-tweak-tool ibus ibus-libpinyin )
-DEEPIN_DESKTOP=( xorg deepin deepin-extra deepin-anything-arch fcitx )
+GNOME_DESKTOP=( xorg gnome gnome-extra gdm gnome-tweak-tool)
+DEEPIN_DESKTOP=( xorg deepin deepin-extra deepin-anything-arch )
 DESKTOP=(${DEEPIN_DESKTOP[@]})
 DE='g'
 
@@ -60,7 +60,7 @@ print_help()
 
     -d Specify installation disk，please use: -d /dev/sd* , Default is/dev/sda
 
-    -g Set Graphic Interface environment. Follow g set to gnome.  Follow d set to DDE ,Default is gnome.
+    -g Set Graphic Interface environment. Follow g set to gnome.  Follow d set to DDE ,Default is DDE.
        Use: -g [dg]
 
     -s Default mode, ${red}(Best use this select when no other partition in your disk) ${plain}，Running scripts with default values，If this parameter is used, all other parameters will fail.
@@ -115,7 +115,7 @@ check_partition_to_make()
 #检查网络连接
 check_net()
 {
-    ping -c 4 mirrors.163.com
+    ping -c 4 mirrors.tuna.tsinghua.edu.cn
     if [ $? -eq 0 ]; then
         echo -e "${green}Network connect!${plain}"
         return 0
@@ -245,10 +245,9 @@ is_diskpart_success()
 set_mirror()
 {
     mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.back
-    echo "Server = http://mirrors.163.com/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+    echo "Server = https://mirrors.tuna.tsinghua.edu.cn/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
     echo '[archlinuxcn]
-SigLevel = Optional TrustedOnly
-Server = http://mirrors.163.com/archlinux-cn/$arch
+Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
 ' >> /etc/pacman.conf
 }
 
@@ -300,8 +299,8 @@ find_target_disk()
         fi
         num1=$(( $num1 + 1 ))
     done
-    TARGET_DISK='/dev/sda'
-    echo -e "${red} Default Target disk at ${TARGET_DISK} ${plain}"
+    TARGET_DISK="/dev/sda"
+    echo -e "${red} Set Target disk at ${TARGET_DISK} ${plain}"
 }
 
 
@@ -480,7 +479,7 @@ fi
 check_net
 timedatectl set-timezone Asia/Shanghai
 timedatectl set-ntp true
-echo "DNS=223.5.5.5" >> /etc/systemd/resolved.conf
+echo "DNS=8.8.8.8" >> /etc/systemd/resolved.conf
 systemctl start systemd-resolved.service
 
 set_mirror
@@ -529,12 +528,11 @@ echo '127.0.0.1       localhost
 127.0.1.1       Arch.localdomain  Arch' >> /mnt/etc/hosts
 
 echo '[archlinuxcn]
-SigLevel = Optional TrustedOnly
-Server = http://mirrors.163.com/archlinux-cn/$arch
+Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
 ' >> /mnt/etc/pacman.conf
 
 mv /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.back
-echo "Server = http://mirrors.163.com/archlinux/\$repo/os/\$arch" > /mnt/etc/pacman.d/mirrorlist
+echo "Server = https://mirrors.tuna.tsinghua.edu.cn/archlinux/\$repo/os/\$arch" > /mnt/etc/pacman.d/mirrorlist
 
 useradd -m -G wheel -R /mnt admin
 echo "admin:admin123" | chpasswd -R /mnt
@@ -553,7 +551,7 @@ else
 fi
 echo 'sleep 1
 grub-mkconfig -o /boot/grub/grub.cfg
-echo "DNS=223.5.5.5" >> /etc/systemd/resolved.conf
+echo "DNS=8.8.8.8" >> /etc/systemd/resolved.conf
 ' >> /mnt/set.sh
 
 if [ "$DE" = 'd' ];then
@@ -587,7 +585,7 @@ umount /mnt
 if [ $YES -eq '0' ] ;then
     echo -e "${green} All work has been completed. Reboot now? [y/n]${plain}"
     read -a yesno2
-    if [ "$yesno2" = "y" ]; then
+    if [ "$yesno2" = "y" ] ; then
         reboot
     else
         echo -e "${red} Reboot later! ${plain}"
