@@ -567,16 +567,8 @@ exit 0'  >> /mnt/set.sh
 
 chmod a+x /mnt/set.sh
 
-mount --bind /dev /mnt/dev
-mount --bind /proc /mnt/proc
-mount --bind /tmp /mnt/tmp
-mount --bind /sys /mnt/sys
-chroot /mnt /bin/bash /set.sh
+arch-chroot /mnt /bin/bash /set.sh
 
-umount /mnt/dev
-umount /mnt/proc
-umount /mnt/tmp
-umount /mnt/sys
 if [ "$IS_UEFI" -eq "1"];then
     umount /mnt/boot/efi
 fi
