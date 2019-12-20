@@ -46,8 +46,8 @@ PROTECT_DISK=''
 PACKAGE=( vim gcc mesa ttf-dejavu wqy-zenhei alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring )
 
 #自定义桌面环境
-GNOME_DESKTOP=( xorg gnome gnome-extra gdm gnome-tweak-tool)
-DEEPIN_DESKTOP=( xorg deepin deepin-extra deepin-anything-arch )
+GNOME_DESKTOP=( wayland gnome gnome-extra gdm gnome-tweak-tool)
+DEEPIN_DESKTOP=( wayland deepin deepin-extra deepin-anything-arch )
 DESKTOP=(${DEEPIN_DESKTOP[@]})
 DE='g'
 
@@ -544,10 +544,11 @@ locale-gen' >> /mnt/set.sh
 isx64=$(uname -a | grep x86_64 )
 
 if [ "$IS_UEFI" -eq '1' ] && [ -n "$isx64" ] ; then
-    echo 'grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
-grub-install --target=x86_64-efi' >> /mnt/set.sh
+    echo 'grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch
+update-grub2' >> /mnt/set.sh
 else
-    echo "grub-install --target=i386-pc $TARGET_DISK" >> /mnt/set.sh
+    echo "grub-install --target=i386-pc $TARGET_DISK
+update-grub2" >> /mnt/set.sh
 fi
 echo 'sleep 1
 grub-mkconfig -o /boot/grub/grub.cfg
