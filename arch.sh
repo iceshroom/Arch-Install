@@ -544,14 +544,13 @@ locale-gen' >> /mnt/set.sh
 isx64=$(uname -a | grep x86_64 )
 
 if [ "$IS_UEFI" -eq '1' ] && [ -n "$isx64" ] ; then
-    echo 'grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch
-update-grub2' >> /mnt/set.sh
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch $TARGET_DISK
 else
     echo "grub-install --target=i386-pc $TARGET_DISK
-update-grub2" >> /mnt/set.sh
 fi
-echo 'sleep 1
 grub-mkconfig -o /boot/grub/grub.cfg
+
+echo '
 echo "DNS=8.8.8.8" >> /etc/systemd/resolved.conf
 ' >> /mnt/set.sh
 
