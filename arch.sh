@@ -43,11 +43,11 @@ PROTECT_DISK=''
 
 
 #基本安装包
-PACKAGE=( vim gcc mesa ttf-dejavu wqy-zenhei alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring )
+PACKAGE=( grub vim gcc alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring )
 
 #自定义桌面环境
-GNOME_DESKTOP=( wayland gnome gnome-extra gdm gnome-tweak-tool)
-DEEPIN_DESKTOP=( wayland deepin deepin-extra deepin-anything-arch )
+GNOME_DESKTOP=( wayland gnome gdm gnome-tweak-tool)
+DEEPIN_DESKTOP=( wayland deepin deepin-anything-arch )
 DESKTOP=(${DEEPIN_DESKTOP[@]})
 DE='g'
 
@@ -178,35 +178,63 @@ print_newdisk()
     done
 }
 
+run_fdisk()
+{
+    echo $1 | fdisk $TARGET_DISK
+}
+
 #执行分区函数
 diskpart()
 {
     set_protect_disk
     disk_num=0
 
-    #在MBR分区中，fdisk要多输入一次回车
-    IS_MBR=$(fdisk -l ${TARGET_DISK} | grep dos) 
+    local FDISK_T=''
+    local FDISK_REP=''
+    local IS_GPT='0'
+
+    echo -e "${green}Here we go!${plain}"
+
+    FDISK_REP=$(fdisk -l /dev/sda)
+    local TEST=$(echo "$FDISK_REP" | grep "Device does not contain a recognized partition table")
+    if [ -n "$TEST" ] ; then
+        if [ "$IS_UEFI" -eq '1' ] ; then
+            echo "Make a gpt table in $TARGET_DISK"
+            FDISK_T="g\nw\nq"
+        else
+            echo "Make a dos table in $TARGET_DISK"
+            FDISK_T="o\nw\nq"
+        fi
+        echo -e "$FDISK_T" | fdisk $TARGET_DISK 1>/dev/null
+    fi
+
+    FDISK_REP=$(fdisk -l $TARGET_DISK)
+    TEST=$(echo "$FDISK_REP" | grep "gpt")
+    if [ -n "$TEST" ] ; then
+        IS_GPT='1'
+    fi
 
     while [ $disk_num -lt ${#PARTITION_TO_MAKE[@]} ]
     do
         if [ "${PARTITION_TO_MAKE[$disk_num]}" !=  'FULL' ] ; then
-	    if [ -n "$IS_MBR" ] ; then
-            	echo -e "n\n\n\n\n+${PARTITION_TO_MAKE[$disk_num]}\nw" | fdisk -B $TARGET_DISK 
-	    else
-		echo -e "n\n\n\n+${PARTITION_TO_MAKE[$disk_num]}\nw" | fdisk -B $TARGET_DISK
-	    fi
+            if [ "$IS_GPT" = "1" ] ; then
+                FDISK_T="n\n\n\n+${PARTITION_TO_MAKE[$disk_num]}\nw"
+            else
+                FDISK_T="n\n\n\n\n+${PARTITION_TO_MAKE[$disk_num]}\nw"
+            fi
         else
-	    if [ -n "$IS_MBR" ] ; then
-            	echo -e "n\n\n\n\n\nw" | fdisk -B $TARGET_DISK
-	    else
-		echo -e "n\n\n\n\nw" | fdisk -B $TARGET_DISK
-	    fi	    
+            if [ "$IS_GPT" = "1" ] ; then
+                FDISK_T="n\n\n\n\nw"
+            else
+                FDISK_T="n\n\n\n\n\nw"
+            fi
         fi
-            partprobe
-            disk_num=$(( $disk_num + 1 ))
+        disk_num=$(( $disk_num + 1 ))
+        echo -e "Create a partition $TARGET_DISK$disk_num ${PARTITION_TO_MAKE[$(( $disk_num - 1 ))]} "
+        echo -e "$FDISK_T" | fdisk $TARGET_DISK 1>/dev/null
     done
 
-    sleep 1
+    partprobe
     find_new_disk
 
     if [ -z "$BOOT_PARTITION" ] ; then
@@ -229,7 +257,6 @@ diskpart()
         echo -e "${red}diskpart fault!${plain}"
         exit 1
     fi
-
 }
 
 is_diskpart_success()
@@ -286,7 +313,7 @@ find_efi()
 #检查系统中存在的所有磁盘，通过查找BIOS boot 或 EFI启动分区来设置启动磁盘，在MBR+BIOS环境下将TARGET_DISK设置为/dev/sda
 find_target_disk()
 {
-    target_temp=($(ls /dev/sd* | grep "^/dev/sd.$") $(ls /dev/nvme0n* | grep "^/dev/nvme0n.$"))
+    target_temp=($(ls /dev/sd* | grep "^/dev/sd.$") $(ls /dev/nvme0n* 2>/dev/null | grep "^/dev/nvme0n.$"))
     num1='0'
     BIOS_OR_UEFI
     while [ "$num1" -lt "${#target_temp[@]}" ]
@@ -322,25 +349,26 @@ deal_opt()
                    if [ "g" =  "${opt[$i]}" ];then
                         DESKTOP=(${GNOME_DESKTOP[@]})
                         DE='g'
+                        echo -e "${yellow} Select Gnome ${plain}"
                    elif [ "d" =  "${opt[$i]}" ];then
                         DESKTOP=(${DEEPIN_DESKTOP[@]})
                         DE='d'
+                        echo -e "${yellow} Select DDE ${plain}"
                    fi
-                   echo "${yellow} Select ${DESKTOP} ${plain}"
                    i=$(($i+1))
                    ;;
             "-s")  
                    if [ "$IS_UEFI" == "1" ] ; then
                         if [ -z "$BOOT_PARTITION" ] ; then
-                            deal_opt -p "256M,FULL" -g g
+                            deal_opt -p "256M,FULL" -g d
                         else
-                            deal_opt -p "FULL" -g g
+                            deal_opt -p "FULL" -g d
                         fi
                    else
                         if [ -z "$BOOT_PARTITION" ] ; then
-                            deal_opt -p "1M,FULL" -g g
+                            deal_opt -p "1M,FULL" -g d
                         else
-                            deal_opt -p "FULL" -g g
+                            deal_opt -p "FULL" -g d
                         fi
                    fi
                    break
@@ -424,6 +452,8 @@ else
     deal_opt $@
 fi
 
+BIOS_OR_UEFI
+
 if [ "$NEED_MAKE_PARTITION" -eq '1' ]; then
 diskpart
 is_diskpart_success
@@ -433,7 +463,7 @@ echo -e "${red}root(/) locate at：$INSTALL_PARTITION"
 echo -e "/boot/efi locate at：$BOOT_PARTITION ${plain}"
 sleep 1
 
-BIOS_OR_UEFI
+
 
 #确定分区是MBR或GPT
 EFI_N=$(fdisk -l ${TARGET_DISK} | grep dos)
@@ -489,13 +519,13 @@ do
     pacman -Sy
 done
 
-pacstrap /mnt base base-devel grub os-prober efibootmgr  $NOCONFIRM
+pacstrap /mnt base base-devel $NOCONFIRM
 while [ "$?" -ne "0" ]
 do
     echo -e "${yellow} pacstrap was fail,try again? [y/n]${plain}"
     read -a yesno3
     if [ "$yesno3" = "y" ]; then
-        pacstrap /mnt base base-devel grub os-prober efibootmgr  $NOCONFIRM
+        pacstrap /mnt base base-devel $NOCONFIRM
     else
         echo -e "${red} CANCEL! ${plain}"
         exit 1
@@ -546,7 +576,7 @@ isx64=$(uname -a | grep x86_64 )
 if [ "$IS_UEFI" -eq '1' ] && [ -n "$isx64" ] ; then
     grub-install --target=x86_64-efi --efi-directory=/mnt/boot/efi --bootloader-id=Arch $TARGET_DISK
 else
-    echo "grub-install --target=i386-pc $TARGET_DISK
+    echo "grub-install --target=i386-pc $TARGET_DISK"
 fi
 grub-mkconfig -o /boot/grub/grub.cfg
 
