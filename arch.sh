@@ -578,10 +578,10 @@ if [ "$IS_UEFI" -eq '1' ] && [ -n "$isx64" ] ; then
 else
     echo "grub-install --target=i386-pc $TARGET_DISK"
 fi
-grub-mkconfig -o /boot/grub/grub.cfg
 
 echo '
 echo "DNS=8.8.8.8" >> /etc/systemd/resolved.conf
+grub-mkconfig -o /boot/grub/grub.cfg
 ' >> /mnt/set.sh
 
 if [ "$DE" = 'd' ];then
@@ -599,7 +599,7 @@ chmod a+x /mnt/set.sh
 
 arch-chroot /mnt /bin/bash /set.sh
 
-if [ "$IS_UEFI" -eq "1"];then
+if [ "$IS_UEFI" -eq "1" ] ; then
     umount /mnt/boot/efi
 fi
 umount /mnt
