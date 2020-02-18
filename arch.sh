@@ -43,11 +43,11 @@ PROTECT_DISK=''
 
 
 #基本安装包
-PACKAGE=( grub vim gcc alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring )
+PACKAGE=( grub vim gcc alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring ttf-dejavu wqy-zenhei wqy-microhei  )
 
 #自定义桌面环境
 GNOME_DESKTOP=( wayland gnome gdm gnome-tweak-tool)
-DEEPIN_DESKTOP=( wayland deepin lightdm lightdm-deepin-greeter )
+DEEPIN_DESKTOP=( wayland deepin deepin-anything-arch )
 DESKTOP=(${DEEPIN_DESKTOP[@]})
 DE='g'
 
@@ -484,10 +484,17 @@ else
 fi
 
 if [ "$EFI_FORMAT" -eq '1' ] ; then
-    mkfs.fat -F32 $BOOT_PARTITION
-    BOOT_PARTITION_NUM=$( echo $BOOT_PARTITION | sed "s/\/dev\/sd.//g" )
-    fatlabel $BOOT_PARTITION EFI
-    echo -e "t\n${BOOT_PARTITION_NUM}\n${EFI_N}\nw" | fdisk -B $TARGET_DISK
+    echo -e "${red} Format EFI ( bios boot ) partition! Are you sure to continue?[y/n] ${plain}"
+    read -a yesno
+    if [ "$yesno" = "y" ]; then
+        mkfs.fat -F32 $BOOT_PARTITION
+        BOOT_PARTITION_NUM=$( echo $BOOT_PARTITION | sed "s/\/dev\/sd.//g" )
+        fatlabel $BOOT_PARTITION EFI
+        echo -e "t\n${BOOT_PARTITION_NUM}\n${EFI_N}\nw" | fdisk -B $TARGET_DISK
+    else
+        echo -e "${red} CANCEL! ${plain}"
+        exit 1
+    fi
 fi
 mkfs.ext4 $INSTALL_PARTITION
 
@@ -515,7 +522,14 @@ done
 pacstrap /mnt base base-devel $NOCONFIRM
 while [ "$?" -ne "0" ]
 do
+    echo -e "${yellow} pacstrap was fail,try again? [y/n]${plain}"
+    read -a yesno3
+    if [ "$yesno3" = "y" ]; then
         pacstrap /mnt base base-devel $NOCONFIRM
+    else
+        echo -e "${red} CANCEL! ${plain}"
+        exit 1
+    fi
 done
 
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -523,7 +537,14 @@ genfstab -U /mnt >> /mnt/etc/fstab
 pacstrap /mnt ${PACKAGE[@]} ${DESKTOP[@]} $NOCONFIRM
 while [ "$?" -ne "0" ]
 do
-    pacstrap /mnt ${PACKAGE[@]} ${DESKTOP[@]} $NOCONFIRM
+    echo -e "${yellow} pacstrap was fail,try again? [y/n]${plain}"
+    read -a yesno4
+    if [ "$yesno4" = "y" ]; then
+        pacstrap /mnt ${PACKAGE[@]} ${DESKTOP[@]} $NOCONFIRM
+    else
+        echo -e "${red} CANCEL! ${plain}"
+        exit 1
+    fi
 done
 
 ln -sf /mnt/usr/share/zoneinfo/Asia/Shanghai /mnt/etc/localtime
@@ -543,10 +564,6 @@ Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
 mv /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.back
 echo "Server = https://mirrors.tuna.tsinghua.edu.cn/archlinux/\$repo/os/\$arch" > /mnt/etc/pacman.d/mirrorlist
 
-useradd -m -G wheel -R /mnt admin
-echo "admin:admin123" | chpasswd -R /mnt
-echo "%wheel ALL=(ALL) ALL" >> /mnt/etc/sudoers
-
 echo '#!/bin/bash ' >> /mnt/set.sh
 echo 'hwclock --systohc
 locale-gen' >> /mnt/set.sh
@@ -561,6 +578,9 @@ fi
 echo '
 echo "DNS=8.8.8.8" >> /etc/systemd/resolved.conf
 grub-mkconfig -o /boot/grub/grub.cfg
+useradd -m -G wheel  admin
+echo "admin:admin123" | chpasswd
+echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 ' >> /mnt/set.sh
 
 if [ "$DE" = 'd' ];then
