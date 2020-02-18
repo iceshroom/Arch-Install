@@ -484,17 +484,10 @@ else
 fi
 
 if [ "$EFI_FORMAT" -eq '1' ] ; then
-    echo -e "${red} Format EFI ( bios boot ) partition! Are you sure to continue?[y/n] ${plain}"
-    read -a yesno
-    if [ "$yesno" = "y" ]; then
-        mkfs.fat -F32 $BOOT_PARTITION
-        BOOT_PARTITION_NUM=$( echo $BOOT_PARTITION | sed "s/\/dev\/sd.//g" )
-        fatlabel $BOOT_PARTITION EFI
-        echo -e "t\n${BOOT_PARTITION_NUM}\n${EFI_N}\nw" | fdisk -B $TARGET_DISK
-    else
-        echo -e "${red} CANCEL! ${plain}"
-        exit 1
-    fi
+    mkfs.fat -F32 $BOOT_PARTITION
+    BOOT_PARTITION_NUM=$( echo $BOOT_PARTITION | sed "s/\/dev\/sd.//g" )
+    fatlabel $BOOT_PARTITION EFI
+    echo -e "t\n${BOOT_PARTITION_NUM}\n${EFI_N}\nw" | fdisk -B $TARGET_DISK
 fi
 mkfs.ext4 $INSTALL_PARTITION
 
@@ -522,14 +515,7 @@ done
 pacstrap /mnt base base-devel $NOCONFIRM
 while [ "$?" -ne "0" ]
 do
-    echo -e "${yellow} pacstrap was fail,try again? [y/n]${plain}"
-    read -a yesno3
-    if [ "$yesno3" = "y" ]; then
         pacstrap /mnt base base-devel $NOCONFIRM
-    else
-        echo -e "${red} CANCEL! ${plain}"
-        exit 1
-    fi
 done
 
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -537,14 +523,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 pacstrap /mnt ${PACKAGE[@]} ${DESKTOP[@]} $NOCONFIRM
 while [ "$?" -ne "0" ]
 do
-    echo -e "${yellow} pacstrap was fail,try again? [y/n]${plain}"
-    read -a yesno4
-    if [ "$yesno4" = "y" ]; then
-        pacstrap /mnt ${PACKAGE[@]} ${DESKTOP[@]} $NOCONFIRM
-    else
-        echo -e "${red} CANCEL! ${plain}"
-        exit 1
-    fi
+    pacstrap /mnt ${PACKAGE[@]} ${DESKTOP[@]} $NOCONFIRM
 done
 
 ln -sf /mnt/usr/share/zoneinfo/Asia/Shanghai /mnt/etc/localtime
