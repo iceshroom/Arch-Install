@@ -43,11 +43,11 @@ PROTECT_DISK=''
 
 
 #基本安装包
-PACKAGE=( grub vim gcc alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring ttf-dejavu wqy-zenhei wqy-microhei  )
+PACKAGE=( grub vim gcc alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring ttf-dejavu wqy-zenhei wqy-microhei )
 
 #自定义桌面环境
 GNOME_DESKTOP=( wayland gnome gdm gnome-tweak-tool)
-DEEPIN_DESKTOP=( wayland deepin deepin-anything-arch )
+DEEPIN_DESKTOP=( wayland deepin lightdm lightdm-deepin-greeter )
 DESKTOP=(${DEEPIN_DESKTOP[@]})
 DE='g'
 
@@ -484,17 +484,10 @@ else
 fi
 
 if [ "$EFI_FORMAT" -eq '1' ] ; then
-    echo -e "${red} Format EFI ( bios boot ) partition! Are you sure to continue?[y/n] ${plain}"
-    read -a yesno
-    if [ "$yesno" = "y" ]; then
-        mkfs.fat -F32 $BOOT_PARTITION
-        BOOT_PARTITION_NUM=$( echo $BOOT_PARTITION | sed "s/\/dev\/sd.//g" )
-        fatlabel $BOOT_PARTITION EFI
-        echo -e "t\n${BOOT_PARTITION_NUM}\n${EFI_N}\nw" | fdisk -B $TARGET_DISK
-    else
-        echo -e "${red} CANCEL! ${plain}"
-        exit 1
-    fi
+    mkfs.fat -F32 $BOOT_PARTITION
+    BOOT_PARTITION_NUM=$( echo $BOOT_PARTITION | sed "s/\/dev\/sd.//g" )
+    fatlabel $BOOT_PARTITION EFI
+    echo -e "t\n${BOOT_PARTITION_NUM}\n${EFI_N}\nw" | fdisk -B $TARGET_DISK
 fi
 mkfs.ext4 $INSTALL_PARTITION
 
@@ -522,14 +515,7 @@ done
 pacstrap /mnt base base-devel $NOCONFIRM
 while [ "$?" -ne "0" ]
 do
-    echo -e "${yellow} pacstrap was fail,try again? [y/n]${plain}"
-    read -a yesno3
-    if [ "$yesno3" = "y" ]; then
         pacstrap /mnt base base-devel $NOCONFIRM
-    else
-        echo -e "${red} CANCEL! ${plain}"
-        exit 1
-    fi
 done
 
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -537,14 +523,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 pacstrap /mnt ${PACKAGE[@]} ${DESKTOP[@]} $NOCONFIRM
 while [ "$?" -ne "0" ]
 do
-    echo -e "${yellow} pacstrap was fail,try again? [y/n]${plain}"
-    read -a yesno4
-    if [ "$yesno4" = "y" ]; then
-        pacstrap /mnt ${PACKAGE[@]} ${DESKTOP[@]} $NOCONFIRM
-    else
-        echo -e "${red} CANCEL! ${plain}"
-        exit 1
-    fi
+    pacstrap /mnt ${PACKAGE[@]} ${DESKTOP[@]} $NOCONFIRM
 done
 
 ln -sf /mnt/usr/share/zoneinfo/Asia/Shanghai /mnt/etc/localtime
@@ -578,8 +557,8 @@ fi
 echo '
 echo "DNS=8.8.8.8" >> /etc/systemd/resolved.conf
 grub-mkconfig -o /boot/grub/grub.cfg
-useradd -m -G wheel  admin
-echo "admin:admin123" | chpasswd
+useradd -m -G wheel admin
+echo "admin:admin123" | chpasswd 
 echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 ' >> /mnt/set.sh
 
@@ -603,16 +582,8 @@ if [ "$IS_UEFI" -eq "1" ] ; then
 fi
 umount /mnt
 
-if [ $YES -eq '0' ] ;then
-    echo -e "${green} All work has been completed. Reboot now? [y/n]${plain}"
-    read -a yesno2
-    if [ "$yesno2" = "y" ] ; then
-        reboot
-    else
-        echo -e "${red} Reboot later! ${plain}"
-        exit 0
-    fi
-else
-    reboot
-fi
+echo -e "${green} All work has been completed. Reboot now!${plain}"
+sleep 3
+reboot
+
 exit 0
