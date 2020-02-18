@@ -47,7 +47,7 @@ PACKAGE=( grub vim gcc alsa-utils ntfs-3g bash-completion networkmanager net-too
 
 #自定义桌面环境
 GNOME_DESKTOP=( wayland gnome gdm gnome-tweak-tool)
-DEEPIN_DESKTOP=( wayland deepin deepin-anything-arch )
+DEEPIN_DESKTOP=( wayland deepin lightdm lightdm-deepin-greeter )
 DESKTOP=(${DEEPIN_DESKTOP[@]})
 DE='g'
 
