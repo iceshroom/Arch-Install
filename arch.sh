@@ -46,8 +46,8 @@ PROTECT_DISK=''
 PACKAGE=( grub efibootmgr vim gcc alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring ttf-dejavu wqy-zenhei wqy-microhei )
 
 #自定义桌面环境
-GNOME_DESKTOP=( wayland gnome gdm gnome-tweak-tool)
-DEEPIN_DESKTOP=( wayland deepin lightdm lightdm-deepin-greeter )
+GNOME_DESKTOP=( wayland gnome gdm gnome-tweak-tool gnome-terminal )
+DEEPIN_DESKTOP=( wayland deepin lightdm lightdm-deepin-greeter deepin-terminal )
 DESKTOP=(${DEEPIN_DESKTOP[@]})
 DE='g'
 
@@ -360,15 +360,15 @@ deal_opt()
             "-s")  
                    if [ "$IS_UEFI" == "1" ] ; then
                         if [ -z "$BOOT_PARTITION" ] ; then
-                            deal_opt -p "256M,FULL" -g d
+                            deal_opt -p "256M,FULL" -g g
                         else
-                            deal_opt -p "FULL" -g d
+                            deal_opt -p "FULL" -g g
                         fi
                    else
                         if [ -z "$BOOT_PARTITION" ] ; then
-                            deal_opt -p "1M,FULL" -g d
+                            deal_opt -p "1M,FULL" -g g
                         else
-                            deal_opt -p "FULL" -g d
+                            deal_opt -p "FULL" -g g
                         fi
                    fi
                    break
