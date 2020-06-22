@@ -47,8 +47,8 @@ PROTECT_DISK=''
 PACKAGE=( linux linux-firmware grub efibootmgr os-prober vim gcc alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring ttf-dejavu wqy-zenhei wqy-microhei )
 
 #自定义桌面环境
-GNOME_DESKTOP=( wayland gnome gdm gnome-tweak-tool gnome-terminal )
-DEEPIN_DESKTOP=( wayland deepin lightdm lightdm-deepin-greeter deepin-terminal )
+GNOME_DESKTOP=( wayland xorg gnome gdm gnome-tweak-tool gnome-terminal )
+DEEPIN_DESKTOP=( wayland xorg deepin lightdm lightdm-deepin-greeter deepin-terminal )
 DESKTOP=(${GNOME_DESKTOP[@]})
 DE='g'
 
