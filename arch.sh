@@ -365,15 +365,15 @@ deal_opt()
             "-s")  
                    if [ "$IS_UEFI" == "1" ] ; then
                         if [ -z "$BOOT_PARTITION" ] ; then
-                            deal_opt -p "256M,FULL" -g g
+                            deal_opt -y -p "256M,FULL" -g g
                         else
-                            deal_opt -p "FULL" -g g
+                            deal_opt -y -p "FULL" -g g
                         fi
                    else
                         if [ "$IS_GPT" == "1"  ] ; then
-                            deal_opt -p "1M,FULL" -g g
+                            deal_opt -y -p "1M,FULL" -g g
                         else
-                            deal_opt -p "FULL" -g g
+                            deal_opt -y -p "FULL" -g g
 			fi
                    fi
                    break
