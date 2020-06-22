@@ -218,9 +218,9 @@ diskpart()
     echo -e "${green}Here we go!${plain}"
 
     FDISK_REP=$(fdisk -l /dev/sda)
-    local TEST1=$(echo "$FDISK_REP" | grep "gpt")
-    local TEST2=$(echo "$FDISK_REP" | grep "dos")
-    if [ -n "$TEST1" ] && [ -n "$TEST2" ] ; then
+    local TEST1="$(echo "$FDISK_REP" | grep "gpt")"
+    local TEST2="$(echo "$FDISK_REP" | grep "dos")"
+    if [ -n "$TEST1" ] && [ -n "$TEST2" ] || [ "${#PROTECT_DISK[@]}" == "0" ] ; then
         if [ "$IS_UEFI" -eq '1' ] ; then
             echo "Make a gpt table in $TARGET_DISK"
             FDISK_T="g\nw\nq"
