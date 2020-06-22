@@ -218,9 +218,9 @@ diskpart()
     echo -e "${green}Here we go!${plain}"
 
     FDISK_REP=$(fdisk -l /dev/sda)
-    local TEST=$(echo "$FDISK_REP" | grep "gpt")
-          TEST=$(echo "$FDISK_REP" | grep "dos")
-    if [ -n "$TEST" ] ; then
+    local TEST1=$(echo "$FDISK_REP" | grep "gpt")
+    local TEST2=$(echo "$FDISK_REP" | grep "dos")
+    if [ -n "$TEST1" ] && [ -n "$TEST2" ] ; then
         if [ "$IS_UEFI" -eq '1' ] ; then
             echo "Make a gpt table in $TARGET_DISK"
             FDISK_T="g\nw\nq"
@@ -236,13 +236,13 @@ diskpart()
     while [ $disk_num -lt ${#PARTITION_TO_MAKE[@]} ]
     do
         if [ "${PARTITION_TO_MAKE[$disk_num]}" !=  'FULL' ] ; then
-            if [ "$IS_GPT" = "1" ] ; then
+            if [ "$IS_GPT" == "1" ] ; then
                 FDISK_T="n\n\n\n+${PARTITION_TO_MAKE[$disk_num]}\nw"
             else
                 FDISK_T="n\n\n\n\n+${PARTITION_TO_MAKE[$disk_num]}\nw"
             fi
         else
-            if [ "$IS_GPT" = "1" ] ; then
+            if [ "$IS_GPT" == "1" ] ; then
                 FDISK_T="n\n\n\n\nw"
             else
                 FDISK_T="n\n\n\n\n\nw"
