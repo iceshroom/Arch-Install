@@ -74,7 +74,7 @@ print_help()
     -h Print this help.
 
     -p Auto partition，
-       Use：-p \"*G,*G, ...\" Replace the *  with the size of the partition you want，
+       Use: -p \"*G,*G, ...\" Replace the *  with the size of the partition you want，
        Should specified M and G  ，like \"20G,512M ...\"
        Use ”FULL“ to divide the remaining disk space into one partition，
        So \"FULL\" must be the last parameter，like: \"512M,20G,FULL\".
@@ -84,10 +84,10 @@ print_help()
        the script exits directly.
 
     -r/--rootdisk Specify\"${red} / ${plain}\" partition，
-       Use ：--rootdisk 1~128 or -r 1~128 (GPT),Default is the second partition make by Auto partition.
+       Use : --rootdisk 1~128 or -r 1~128 (GPT),Default is the second partition make by Auto partition.
 
     -b/--bootdisk Specify\"${red} /boot/efi ${plain}\"partition，
-       Use ：--bootdisk 1~128 or -b 1~128 (GPT), If no partition on the disk and -s is Used , 
+       Use : --bootdisk 1~128 or -b 1~128 (GPT), If no partition on the disk and -s is Used , 
        It will be automated create ，If there was already a EFI partition, It will be auto detect and use.
 
     -y  Auto select yes, In the same time pacman will use --noconfirm.
@@ -193,7 +193,7 @@ print_newdisk()
         echo -e "${red}No partition was created!${plain}"
         exit 1
     fi
-    echo -e "${yellow}New partitions：${plain}"
+    echo -e "${yellow}New partitions: ${plain}"
     for newdisk in "${NEWDISK[@]}"
     do
         fdisk -l ${newdisk}
@@ -467,8 +467,8 @@ if [ "$NEED_MAKE_PARTITION" -eq '1' ]; then
     is_diskpart_success
 fi
 
-echo -e "${red}root(/) locate at：$INSTALL_PARTITION"
-echo -e "/boot/efi locate at：$BOOT_PARTITION ${plain}"
+echo -e "${red}root(/) locate at: $INSTALL_PARTITION"
+echo -e "/boot/efi locate at: $BOOT_PARTITION ${plain}"
 sleep 1
 
 
