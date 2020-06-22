@@ -218,7 +218,8 @@ diskpart()
     echo -e "${green}Here we go!${plain}"
 
     FDISK_REP=$(fdisk -l /dev/sda)
-    local TEST=$(echo "$FDISK_REP" | grep "Device does not contain a recognized partition table")
+    local TEST=$(echo "$FDISK_REP" | grep "gpt")
+          TEST=$(echo "$FDISK_REP" | grep "dos")
     if [ -n "$TEST" ] ; then
         if [ "$IS_UEFI" -eq '1' ] ; then
             echo "Make a gpt table in $TARGET_DISK"
