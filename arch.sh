@@ -57,7 +57,7 @@ DE='g'
 #输出帮助
 print_help()
 {
-    echo -e "Archiso auto install and configure script by ${yellow} BBDDD7 ${plain}
+    echo -e "Archiso auto install and configure script by ${yellow} ice-shroom ${plain}
 
     -d Specify installation disk，please use: -d /dev/sd* , Default is/dev/sda
 
