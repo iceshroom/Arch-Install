@@ -64,19 +64,31 @@ print_help()
     -g Set Graphic Interface environment. Follow g set to gnome.  Follow d set to DDE ,Default is DDE.
        Use: -g [dg]
 
-    -s Default mode, ${red}(Best use this select when no other partition in your disk) ${plain}，Running scripts with default values，If this parameter is used, all other parameters will fail.
- ${red}Be careful${plain}，When using this parameter, the automatic partition will allocate 256MB (1MB If is BIOS boot on GPT) as ${red} /boot/efi (Be \"bios boot\" If is BIOS boot on GPT) ${plain} by default and the remaining disk space as ${red} / ${plain}.
+    -s Default mode, ${red}(Best use this select when no other partition in your disk) ${plain}，
+       Running scripts with default values，If this parameter is used, all other parameters will fail.
+ ${red}Be careful${plain}，When using this parameter, 
+       the automatic partition will allocate 256MB (1MB If is BIOS boot on GPT) 
+       as ${red} /boot/efi (Be \"bios boot\" If is BIOS boot on GPT) ${plain} by default and 
+       the remaining disk space as ${red} / ${plain}.
 
     -h Print this help.
 
-    -p Auto partition，Use：-p \"*G,*G, ...\" Replace the *  with the size of the partition you want，Should specified M and G  ，like \"20G,512M ...\"
-       Use ”FULL“ to divide the remaining disk space into one partition，So \"FULL\" must be the last parameter，like: \"512M,20G,FULL\".
-       If there are multiple parameters，Use \"\"  to enclose parameters and Separate by ','.If success，The script will output the result of the partition at the end.
-       If the partition fails (the expected number of partitions is less than the actual number of partitions), the script exits directly.
+    -p Auto partition，
+       Use：-p \"*G,*G, ...\" Replace the *  with the size of the partition you want，
+       Should specified M and G  ，like \"20G,512M ...\"
+       Use ”FULL“ to divide the remaining disk space into one partition，
+       So \"FULL\" must be the last parameter，like: \"512M,20G,FULL\".
+       If there are multiple parameters，Use \"\"  to enclose parameters and Separate by ','.
+       If success，The script will output the result of the partition at the end.
+       If the partition fails (the expected number of partitions is less than the actual number of partitions), 
+       the script exits directly.
 
-    -r/--rootdisk Specify\"${red} / ${plain}\" partition，Use ：--rootdisk 1~128 or -r 1~128 (GPT),Default is the second partition make by Auto partition.
+    -r/--rootdisk Specify\"${red} / ${plain}\" partition，
+       Use ：--rootdisk 1~128 or -r 1~128 (GPT),Default is the second partition make by Auto partition.
 
-    -b/--bootdisk Specify\"${red} /boot/efi ${plain}\"partition，Use ：--bootdisk 1~128 or -b 1~128 (GPT), If no partition on the disk and -s is Used , It will be automated create ，If there was already a EFI partition, It will be auto detect and use.
+    -b/--bootdisk Specify\"${red} /boot/efi ${plain}\"partition，
+       Use ：--bootdisk 1~128 or -b 1~128 (GPT), If no partition on the disk and -s is Used , 
+       It will be automated create ，If there was already a EFI partition, It will be auto detect and use.
 
     -y  Auto select yes, In the same time pacman will use --noconfirm.
         "
