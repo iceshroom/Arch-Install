@@ -1,5 +1,5 @@
 # Arch-Install
-Arch-Install-script
+##Arch-Install-script
 
 ##2020-6-22 更新：
 ###1.修复了MBR+LEGACY环境下会多分出1mb的分区的问题\n
