@@ -492,7 +492,7 @@ else
     fi
 fi
 
-if [ "$EFI_FORMAT" == "1" ] || [ "$IS_GPT" == "1" ] ; then
+if [ "$EFI_FORMAT" == "1" ] ; then
     mkfs.fat -F32 $BOOT_PARTITION
     BOOT_PARTITION_NUM=$( echo $BOOT_PARTITION | sed "s/\/dev\/sd.//g" )
     fatlabel $BOOT_PARTITION EFI
