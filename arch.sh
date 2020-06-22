@@ -254,6 +254,14 @@ diskpart()
 
     partprobe
     find_new_disk
+    
+    if [ '${NEWDISK[@]}' != '' ] ; then
+        print_newdisk
+        return 0
+    else
+        echo -e "${red}diskpart fault!${plain}"
+        exit 1
+    fi
 
     if [ -z "$BOOT_PARTITION" ] ; then
         BOOT_PARTITION="${NEWDISK[0]}"
@@ -263,19 +271,10 @@ diskpart()
     fi
     if [ -z "$INSTALL_PARTITION" ] ; then
 	if [ ${PARTITION_TO_MAKE[0]} == 'FULL' ] ; then
-        INSTALL_PARTITION="${NEWDISK[0]}"
+            INSTALL_PARTITION="${NEWDISK[0]}"
 	else
 	    INSTALL_PARTITION="${NEWDISK[1]}"
 	fi
-    fi
-
-
-    if [ '${NEWDISK[@]}' != '' ] ; then
-        print_newdisk
-        return 0
-    else
-        echo -e "${red}diskpart fault!${plain}"
-        exit 1
     fi
 }
 
@@ -298,29 +297,15 @@ Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
 ' >> /etc/pacman.conf
 }
 
-
-#安装运行脚本所需要的包
-pre_download()
-{
-        pacman -Sy $NOCONFIRM expect
-}
-
 #通过fdisk -l寻找已经存在的efi或BIOS boot分区
 find_efi()
 {
-    set_protect_disk
-    num='0'
     efi_pa=''
-    while [ "$num" -lt "${#PROTECT_DISK[@]}" ] && [ -z "$efi_pa" ]
-    do
-        if [ "$IS_UEFI" -eq '1' ] ; then
-            efi_pa=$( fdisk -l "$TARGET_DISK" | grep "$TARGET_DISK" | grep -v Disk | grep EFI | awk '{print $1}' )
-        else
-            efi_pa=$( fdisk -l "$TARGET_DISK" | grep "$TARGET_DISK" | grep -v Disk | grep "BIOS boot" | awk '{print $1}' )
-        fi 
-        num=$(( $num + 1 ))
-    done
-    num=$(( $num - 1 ))
+    if [ "$IS_UEFI" -eq '1' ] ; then
+        efi_pa=$( fdisk -l "$TARGET_DISK" | grep "$TARGET_DISK" | grep -v Disk | grep EFI | awk '{print $1}' )
+    else
+        efi_pa=$( fdisk -l "$TARGET_DISK" | grep "$TARGET_DISK" | grep -v Disk | grep "BIOS boot" | awk '{print $1}' )
+    fi 
     if [ -n "$efi_pa" ] ; then
         BOOT_PARTITION=${efi_pa}
         echo -e "${red} Find Boot partition at ${BOOT_PARTITION} .${plain}"
@@ -396,20 +381,20 @@ deal_opt()
             "-d")
                   i=$(($i+1))
                   TARGET_DISK=$( echo ${opt[$i]} | grep -E "^/dev/sd[a-z]$" )
-		          if [ -z "$TARGET_DISK" ] ; then
-		  	        TARGET_DISK=$( echo ${opt[$i]} | grep -E "^/dev/nvme0n.$" )
-		          fi
+		  if [ -z "$TARGET_DISK" ] ; then
+		      TARGET_DISK=$( echo ${opt[$i]} | grep -E "^/dev/nvme0n.$" )
+		  fi
                   if [ -z "$TARGET_DISK" ] ; then
-                    echo -e "${red}Unreconized disk: ${opt[$i]}${plain}"
-                    exit 0
+                      echo -e "${red}Unreconized disk: ${opt[$i]}${plain}"
+                      exit 0
                   fi
+		  find_efi
                   i=$(($i+1))
-                  echo $TARGET_DISK 
                   ;;
             "-p")
                   i=$(($i+1))
                   PARTITION_TO_MAKE=$( echo ${opt[$i]} | sed 's/,/\ /g' )
-		          NEED_MAKE_PARTITION='1'
+		  NEED_MAKE_PARTITION='1'
                   i=$(($i+1))
                   check_partition_to_make
                   ;;
@@ -417,18 +402,18 @@ deal_opt()
                   i=$(($i+1))
                   INSTALL_PARTITION=$( echo ${opt[$i]} | grep -E "^[1-9]+$" )
                   if [ -z "$INSTALL_PARTITION" ] ; then
-                    echo -e "${red}Unreconized partition: ${TARGET_DISK}${opt[$i]}${plain}"
-                    exit 0
+                      echo -e "${red}Unreconized partition: ${TARGET_DISK}${opt[$i]}${plain}"
+                      exit 0
                   fi
                   if [ $INSTALL_PARTITION -gt 128 ] ; then
-                    echo -e "${red}Partition illegal: $TARGET_DISK${opt[$i]}${plain} , should in range ${TARGET_DISK}1~128. "
-                    exit 0;
+                      echo -e "${red}Partition illegal: $TARGET_DISK${opt[$i]}${plain} , should in range ${TARGET_DISK}1~128. "
+                      exit 0;
                   fi
 		  temp_tar=$( echo $TARGET_DISK | grep nvme )
 		  if [ -z "$temp_tar" ] ; then
-                  	INSTALL_PARTITION=$TARGET_DISK${opt[$i]}
+                      INSTALL_PARTITION=$TARGET_DISK${opt[$i]}
 		  else
-			INSTALL_PARTITION="${TARGET_DISK}p${opt[$i]}"
+	              INSTALL_PARTITION="${TARGET_DISK}p${opt[$i]}"
 		  fi
                   i=$(($i+1))
                   ;;
@@ -465,8 +450,8 @@ if [ $# -eq 0 ]; then
     deal_opt -h
 else
     if [ "$EUID" -ne 0 ]; then
-	    echo -e "${red}need been root，use sudo${plain} "
-	    exit 1;
+	echo -e "${red}need been root，use sudo${plain} "
+        exit 1;
     fi  
     find_target_disk
     IS_GPT
@@ -476,8 +461,8 @@ fi
 BIOS_OR_UEFI
 
 if [ "$NEED_MAKE_PARTITION" -eq '1' ]; then
-diskpart
-is_diskpart_success
+    diskpart
+    is_diskpart_success
 fi
 
 echo -e "${red}root(/) locate at：$INSTALL_PARTITION"
