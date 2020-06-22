@@ -257,14 +257,16 @@ diskpart()
     
     if [ '${NEWDISK[@]}' != '' ] ; then
         print_newdisk
-        return 0
     else
         echo -e "${red}diskpart fault!${plain}"
         exit 1
     fi
 
     if [ -z "$BOOT_PARTITION" ] ; then
-        BOOT_PARTITION="${NEWDISK[0]}"
+        find_efi
+	if [ "$?" != "0" ] ; then
+            BOOT_PARTITION="${NEWDISK[0]}"
+	fi
         if [ "$IS_GPT" == "1" ] ; then
             EFI_FORMAT='1'
         fi
