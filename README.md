@@ -60,5 +60,5 @@
 在UEFI环境中，如果没有使用-b参数，将自动识别/dev/nvme0n1中的EFI分区，如果没有找到，自动将参数中第一个256M作为EFI分区。 <br>
 在legacy环境中，将自动给启动分区加上启动标签。 <br>
      
-  
-     
+* 一次性到位安装指令，推荐先在虚拟机环境中尝试 <br>
+pacman -Sy git --noconfirm && git clone https://github.com/iceshroom/Arch-Install && cd Arch-Install && chmod a+x arch.sh && ./arch.sh -s 
