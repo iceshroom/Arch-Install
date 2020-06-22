@@ -5,6 +5,10 @@
 * 1.修复了MBR+LEGACY环境下会多分出1mb的分区的问题 
 * 2.将默认桌面环境更换为gnome，现在会自动安装gnome-terminal了（如果你选择使用dde，一样会自动安装deepin-terminal）
 * 3.因为现在base包中不再包含linux内核，现在脚本还将自动安装linux内核以及固件 
+* 4.只使用-d参数现在会报错
+* 5.修复在legacy环境下安装失败的bug，经过测试，现在在legacy与uefi上都能正常运行
+* 6.修复安装dde时lightdm无法启动的bug
+* 7.现在xorg包在两种桌面环境中都会自动安装了
 
 ## 脚本将自动添加用户：admin ，密码为 admin123 .暂不支持自定义账户 
 ## More detail please run ./arch.sh or ./arch.sh -h
