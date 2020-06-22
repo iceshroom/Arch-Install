@@ -492,20 +492,18 @@ else
     fi
 fi
 
-if [ "$EFI_FORMAT" -eq '1' ] || [ "$IS_GPT" == "1" ] ; then
+if [ "$EFI_FORMAT" == "1" ] || [ "$IS_GPT" == "1" ] ; then
     mkfs.fat -F32 $BOOT_PARTITION
-    mkfs.ext4 $INSTALL_PARTITION
     BOOT_PARTITION_NUM=$( echo $BOOT_PARTITION | sed "s/\/dev\/sd.//g" )
     fatlabel $BOOT_PARTITION EFI
     echo -e "t\n${BOOT_PARTITION_NUM}\n${EFI_N}\nw" | fdisk -B $TARGET_DISK
 fi
 
 if [ "$IS_UEFI" -eq '0' ] ; then
-    mkfs.ext4 $INSTALL_PARTITION
     BOOT_PARTITION_NUM=$( echo $BOOT_PARTITION | sed "s/\/dev\/sd.//g" )
     echo -e "a\n${BOOT_PARTITION_NUM}\n\nw" | fdisk -B $TARGET_DISK
 fi
-
+mkfs.ext4 $INSTALL_PARTITION
 
 
 mount $INSTALL_PARTITION /mnt
