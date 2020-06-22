@@ -377,6 +377,7 @@ deal_opt()
                             deal_opt -p "1M,FULL" -g g
                         else
                             deal_opt -p "FULL" -g g
+			fi
                    fi
                    break
                    ;;
