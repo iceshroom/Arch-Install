@@ -578,7 +578,7 @@ echo "admin:admin123" | chpasswd
 echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 ' >> /mnt/set.sh
 
-if [ "$DE" = 'd' ];then
+if [ "$DE" == "d" ];then
     echo 'systemctl enable lightdm.service' >> /mnt/set.sh
 else
     echo 'systemctl enable gdm.service' >> /mnt/set.sh
