@@ -61,7 +61,7 @@ print_help()
 
     -d Specify installation disk，please use: -d /dev/sd* , Default is/dev/sda
 
-    -g Set Graphic Interface environment. Follow g set to gnome.  Follow d set to DDE ,Default is DDE.
+    -g Set Desktop environment. Follow g set to gnome.  Follow d set to DDE ,Default is gnome.
        Use: -g [dg]
 
     -s Default mode, ${red}(Best use this select when no other partition in your disk) ${plain}，
