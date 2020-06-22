@@ -49,7 +49,7 @@ PACKAGE=( linux linux-firmware grub efibootmgr os-prober vim gcc alsa-utils ntfs
 #自定义桌面环境
 GNOME_DESKTOP=( wayland gnome gdm gnome-tweak-tool gnome-terminal )
 DEEPIN_DESKTOP=( wayland deepin lightdm lightdm-deepin-greeter deepin-terminal )
-DESKTOP=(${DEEPIN_DESKTOP[@]})
+DESKTOP=(${GNOME_DESKTOP[@]})
 DE='g'
 
 ###############################
