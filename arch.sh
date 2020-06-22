@@ -31,6 +31,7 @@ BOOT_PARTITION=''
 
 #是否是UEFI，1代表是, 0不是
 IS_UEFI=''
+IS_GPT='0'
 
 
 #是否默认yes，由 -y 参数设置
@@ -86,6 +87,15 @@ print_help()
 BIOS_OR_UEFI()
 {
     IS_UEFI=$( [ -d /sys/firmware/efi ] && echo '1' || echo '0' ) 
+}
+
+IS_GPT()
+{
+    FDISK_REP=$(fdisk -l $TARGET_DISK)
+    TEST=$(echo "$FDISK_REP" | grep "gpt")
+    if [ -n "$TEST" ] ; then
+        IS_GPT='1'
+    fi
 }
 
 #检查PARTITION_TO_MAKE变量，此变量由-p参数设置
@@ -191,7 +201,7 @@ diskpart()
 
     local FDISK_T=''
     local FDISK_REP=''
-    local IS_GPT='0'
+
 
     echo -e "${green}Here we go!${plain}"
 
@@ -208,11 +218,7 @@ diskpart()
         echo -e "$FDISK_T" | fdisk $TARGET_DISK 1>/dev/null
     fi
 
-    FDISK_REP=$(fdisk -l $TARGET_DISK)
-    TEST=$(echo "$FDISK_REP" | grep "gpt")
-    if [ -n "$TEST" ] ; then
-        IS_GPT='1'
-    fi
+    IS_GPT
 
     while [ $disk_num -lt ${#PARTITION_TO_MAKE[@]} ]
     do
@@ -239,11 +245,13 @@ diskpart()
 
     if [ -z "$BOOT_PARTITION" ] ; then
         BOOT_PARTITION="${NEWDISK[0]}"
-        EFI_FORMAT='1'
+        if [ "$IS_GPT" == "1" ] ; then
+            EFI_FORMAT='1'
+        fi
     fi
     if [ -z "$INSTALL_PARTITION" ] ; then
 	if [ ${PARTITION_TO_MAKE[0]} == 'FULL' ] ; then
-            INSTALL_PARTITION="${NEWDISK[0]}"
+        INSTALL_PARTITION="${NEWDISK[0]}"
 	else
 	    INSTALL_PARTITION="${NEWDISK[1]}"
 	fi
@@ -365,6 +373,9 @@ deal_opt()
                             deal_opt -p "FULL" -g g
                         fi
                    else
+                        if [ "$IS_GPT" == "1"  ] ; then
+                            deal_opt -p "1M,FULL" -g g
+                        else
                             deal_opt -p "FULL" -g g
                    fi
                    break
@@ -445,6 +456,7 @@ else
 	    exit 1;
     fi  
     find_target_disk
+    IS_GPT
     deal_opt $@
 fi
 
@@ -479,13 +491,21 @@ else
     fi
 fi
 
-if [ "$EFI_FORMAT" -eq '1' ] ; then
+if [ "$EFI_FORMAT" -eq '1' ] || [ "$IS_GPT" == "1" ] ; then
     mkfs.fat -F32 $BOOT_PARTITION
+    mkfs.ext4 $INSTALL_PARTITION
     BOOT_PARTITION_NUM=$( echo $BOOT_PARTITION | sed "s/\/dev\/sd.//g" )
     fatlabel $BOOT_PARTITION EFI
     echo -e "t\n${BOOT_PARTITION_NUM}\n${EFI_N}\nw" | fdisk -B $TARGET_DISK
 fi
-mkfs.ext4 $INSTALL_PARTITION
+
+if [ "$IS_UEFI" -eq '0' ] ; then
+    mkfs.ext4 $INSTALL_PARTITION
+    BOOT_PARTITION_NUM=$( echo $BOOT_PARTITION | sed "s/\/dev\/sd.//g" )
+    echo -e "a\n${BOOT_PARTITION_NUM}\n\nw" | fdisk -B $TARGET_DISK
+fi
+
+
 
 mount $INSTALL_PARTITION /mnt
 mkdir -vp /mnt/boot/efi
