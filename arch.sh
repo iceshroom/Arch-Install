@@ -214,12 +214,6 @@ diskpart()
     local FDISK_T=''
     local FDISK_REP=''
 
-    echo "${PARTITION_TO_MAKE[@]} here !!!!!!"
-    if [ "${#PARTITION_TO_MAKE[@]}" == "0" ] ; then
-    	echo -e "${red}No partition was specified! Use -p option!${plain}"
-	exit 1
-    fi
-
     echo -e "${green}Here we go!${plain}"
 
     FDISK_REP=$(fdisk -l /dev/sda)
@@ -471,6 +465,17 @@ BIOS_OR_UEFI
 if [ "$NEED_MAKE_PARTITION" -eq '1' ]; then
     diskpart
     is_diskpart_success
+fi
+
+if [ "${INSTALL_PARTITION}" == "" ] ; then
+    echo -e "${red}root(/) partition was not specified! Use -p option!${plain}"
+    exit 1
+fi
+
+
+if [ "$IS_UEFI" == "1" ] && [ "${BOOT_PARTITION}" == "" ] ; then
+    echo -e "${red}EFI partition was not specified! Use -p option!${plain}"
+    exit 1
 fi
 
 echo -e "${red}root(/) locate at: $INSTALL_PARTITION"
