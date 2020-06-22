@@ -214,6 +214,10 @@ diskpart()
     local FDISK_T=''
     local FDISK_REP=''
 
+    if [ "${#PARTITION_TO_MAKE[@]}" == 0 ] ; then
+    	echo -e "${red}No partition was specified! Use -p option!${plain}"
+	exit 1
+    fi
 
     echo -e "${green}Here we go!${plain}"
 
