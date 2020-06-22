@@ -44,7 +44,7 @@ PROTECT_DISK=''
 
 
 #基本安装包
-PACKAGE=( grub efibootmgr os-prober vim gcc alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring ttf-dejavu wqy-zenhei wqy-microhei )
+PACKAGE=( linux linux-firmware grub efibootmgr os-prober vim gcc alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring ttf-dejavu wqy-zenhei wqy-microhei )
 
 #自定义桌面环境
 GNOME_DESKTOP=( wayland gnome gdm gnome-tweak-tool gnome-terminal )
