@@ -517,10 +517,9 @@ mkfs.ext4 $INSTALL_PARTITION
 
 
 mount $INSTALL_PARTITION /mnt
-mkdir -vp /mnt/boot/efi
-
 #BIOS下不需要efi，只在UEFI下挂载
 if [ "$IS_UEFI" -eq '1' ] ; then
+    mkdir -vp /mnt/boot/efi
     mount $BOOT_PARTITION /mnt/boot/efi
 fi
 
