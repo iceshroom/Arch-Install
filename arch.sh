@@ -573,7 +573,7 @@ locale-gen' >> /mnt/set.sh
 isx64=$(uname -a | grep x86_64 )
 
 if [ "$IS_UEFI" -eq '1' ] && [ -n "$isx64" ] ; then
-    echo "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB " >> /mnt/set.sh
+    echo "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=arch " >> /mnt/set.sh
 else
     echo "grub-install --target=i386-pc $TARGET_DISK" >> /mnt/set.sh
 fi
