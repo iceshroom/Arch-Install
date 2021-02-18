@@ -1,5 +1,5 @@
 # Arch-Install
-## Arch-Install-script
+## Arch linux 自动安装脚本
 
 ## 2020-7-31 更新：
 * 修复了MBR+LEGACY环境下会多创建一个/boot/efi文件夹的问题
