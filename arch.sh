@@ -137,7 +137,7 @@ check_partition_to_make()
 #检查网络连接
 check_net()
 {
-    ping -c 4 mirrors.tuna.tsinghua.edu.cn
+    ping -c 4 mirrors.ustc.edu.cn
     if [ $? -eq 0 ]; then
         echo -e "${green}Network connect!${plain}"
         return 0
@@ -293,9 +293,9 @@ is_diskpart_success()
 set_mirror()
 {
     mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.back
-    echo "Server = https://mirrors.tuna.tsinghua.edu.cn/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+    echo "Server = https://mirrors.ustc.edu.cn/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
     echo '[archlinuxcn]
-Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
 ' >> /etc/pacman.conf
 }
 
@@ -561,11 +561,11 @@ echo '127.0.0.1       localhost
 127.0.1.1       Arch.localdomain  Arch' >> /mnt/etc/hosts
 
 echo '[archlinuxcn]
-Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
 ' >> /mnt/etc/pacman.conf
 
 mv /mnt/etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist.back
-echo "Server = https://mirrors.tuna.tsinghua.edu.cn/archlinux/\$repo/os/\$arch" > /mnt/etc/pacman.d/mirrorlist
+echo "Server = https://mirrors.ustc.edu.cn/archlinux/\$repo/os/\$arch" > /mnt/etc/pacman.d/mirrorlist
 
 echo '#!/bin/bash ' >> /mnt/set.sh
 echo 'hwclock --systohc
