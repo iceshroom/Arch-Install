@@ -360,7 +360,7 @@ deal_opt()
 	    "-u")  
                    i=$(($i+1))
 		   USERNAMEANDPASSWD=$( echo ${opt[$i]} | sed 's/:/\ /g' )
-		   if [ ${#array_name[@]} ！= 2 ] ; then
+		   if [ ${#array_name[@]} -ne '2' ] ; then
 		   	echo "${red}please use : -u \"username:passwd\"${plain}"
 			exit 1
 		   fi
