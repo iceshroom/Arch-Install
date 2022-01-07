@@ -598,18 +598,18 @@ else
     echo "grub-install --target=i386-pc $TARGET_DISK" >> /mnt/set.sh
 fi
 
-echo '
-echo "DNS=8.8.8.8" >> /etc/systemd/resolved.conf
+echo "
+echo \"DNS=8.8.8.8\" >> /etc/systemd/resolved.conf
 grub-mkconfig -o /boot/grub/grub.cfg
 useradd -m -G wheel ${USERNAMEANDPASSWD[1]}
-if [ "$?" -ne "0" ] ; then
+if [ \"$?\" -ne \"0\" ] ; then
     useradd -m -G wheel admin
-    echo "admin:admin123" | chpasswd 
+    echo \"admin:admin123\" | chpasswd 
 else
-    echo "${USERNAMEANDPASSWD[1]}"":""${USERNAMEANDPASSWD[2]}" | chpasswd
+    echo \"${USERNAMEANDPASSWD[1]}\"\":\"\"${USERNAMEANDPASSWD[2]}\" | chpasswd
 fi
-echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
-' >> /mnt/set.sh
+echo \"%wheel ALL=(ALL) ALL\" >> /etc/sudoers
+" >> /mnt/set.sh
 
 if [ "$DE" == "k" ];then
     echo 'systemctl enable sddm.service' >> /mnt/set.sh
@@ -635,10 +635,19 @@ echo -e "${green} All work has been completed! ${plain}"
 sleep 2
 echo -e "${green} Thank for your Using ${USERNAMEANDPASSWD[1]} ! And Most Important thing!!! ${plain}"
 sleep 2
-echo -e "${green} Please Follow Asoul girl:
-Carol jiale
-At bilibili !!!!!!!!${plain}"
+echo -e "${green} Please Follow Asoul At bilibili !!!!!!!!:
+Carol
+https://space.bilibili.com/351609538
+Diana
+https://space.bilibili.com/672328094
+Eileen
+https://space.bilibili.com/672342685
+Bella
+https://space.bilibili.com/672353429
+Ava
+https://space.bilibili.com/672346917
+${plain}"
 sleep 1
-echo -e "${green} Please eject your Arch iso then reboot, Enjoy your New system ! ${plain}"
+echo -e "${green} Now you can eject iso disk then reboot! Enjoy your New system ! ${plain}"
 
 exit 0
