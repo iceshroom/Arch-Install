@@ -9,7 +9,7 @@
 * 修复了一些文本输出的问题
 * 修复若干小bug
 
-##欢迎各位使用，如果喜欢，请在bilibili关注Asoul！
+##欢迎各位使用，如果喜欢，请在bilibili关注Asoul！ <br>
  Carol<br>
  https://space.bilibili.com/351609538 <br>
  Diana<br>
