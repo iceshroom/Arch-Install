@@ -359,11 +359,12 @@ deal_opt()
                    ;;
 	    "-u")  
                    i=$(($i+1))
-		   USERNAMEANDPASSWD=$( echo ${opt[$i]} | sed 's/:/\ /g' )
+		   USERNAMEANDPASSWD=( $(echo ${opt[$i]} | sed 's/:/\ /g') )
 		   if [ ${#array_name[@]} -ne '2' ] ; then
-		   	echo "${red}please use : -u \"username:passwd\"${plain}"
+		   	echo -e "${red}please use : -u \"username:passwd\"${plain}"
 			exit 1
 		   fi
+		   echo -e "${green} Your Username And Password will be set !${plain}"
 		   i=$(($i+1))
                    ;;
             "-g")
@@ -630,8 +631,14 @@ if [ "$IS_UEFI" -eq "1" ] ; then
 fi
 umount /mnt
 
-echo -e "${green} All work has been completed. Reboot now!${plain}"
-sleep 3
-reboot
+echo -e "${green} All work has been completed! ${plain}"
+sleep 2
+echo -e "${green} Thank for your Using ${USERNAMEANDPASSWD[1]} ! And Most Important thing!!! ${plain}"
+sleep 2
+echo -e "${green} Please Follow Asoul girl:
+Carol jiale
+At bilibili !!!!!!!!${plain}"
+sleep 1
+echo -e "${green} Please eject your Arch iso then reboot, Enjoy your New system ! ${plain}"
 
 exit 0
