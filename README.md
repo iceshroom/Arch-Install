@@ -1,30 +1,42 @@
 # Arch-Install
 ## Arch linux 自动安装脚本
+## 乐你带我走吧乐😭
+## 2022-01-07 更新：
+* 新增Asoul引流结束语
+* 新增自定义用户与密码的功能
+* 将-s参数改名为-a
+* 移除dde桌面环境的选项，现在可选项为KDE-plasma与Gnome, 默认KDE-plasma
+* 修复了一些文本输出的问题
+* 修复若干小bug
 
-## 2020-7-31 更新：
-* 修复了MBR+LEGACY环境下会多创建一个/boot/efi文件夹的问题
+##欢迎各位使用，如果喜欢，请在bilibili关注Asoul！
 
-## 脚本将自动添加用户：admin ，密码为 admin123 .暂不支持自定义账户 
+
+
+## 如果不使用-u参数，脚本将自动添加用户：admin ，密码为 admin123 .
 ## More detail please run ./arch.sh or ./arch.sh -h
 
 # 使用简介：
-* 使用 ./arch.sh -s 来全自动安装，这样会将将所有剩余的磁盘空间分配到同一个分区中，且将根目录安装到此分区。 <br>
+* 使用 ./arch.sh -a 来全自动安装，这样会将将所有剩余的磁盘空间分配到同一个分区中，且将根目录安装到此分区。 <br>
 * 在UEFI环境下脚本会自动识别出已经存在的EFI分区，并且将grub安装到里面。<br>
-* 脚本的默认桌面环境为gnome，也可以通过设置参数改为dde。（注意如果使用了-s参数其他参数都将失效，所以请根据 <br>
-  下面的提示手动设置参数）<br>
+* 脚本的默认桌面环境为KDE-plasma，也可以通过设置参数改为Gnome。
+* 注意如果使用了-a参数其他参数 (除-u参数， 但是-u要在-a前面设置，如“./arch.sh -u 'admin:passwd' -a”) 都将失效，所以请根据下面的提示手动设置参数.<br>
   
 # 参数详解：
 * -d 设置安装磁盘（目标磁盘），除sata（/dev/sd\*）外还支持nvme（/dev/nvme0n\*） <br>
      在UEFI环境中，脚本将自动查找所指定的磁盘中的efi分区，否则需要在-p参数中指定一个分区作为efi分区 <br>
      默认值为/dev/sda。<br>
      例子： -d /dev/nvme0 或 -d /dev/sda <br>
-* -g 设置桌面环境，默认为gnome (g)，也可以设置为DDE (d) <br>
-     例子：-g g 或 -g d <br>
-* -s 自动模式
+* -g 设置桌面环境，默认为KDE-plasma (k)，也可以设置为Gnome (g) <br>
+     例子：-g k 或 -g g <br>
+* -u 自定义用户名与密码
+     格式为： -u "usrname:passwd", 如果不设置此参数，默认添加用户为"admin:admin123".
+* -a 自动模式
+     注意如果使用了-a参数其他参数 (除-u参数， 但是-u要在-a前面设置，如“./arch.sh -u 'admin:passwd' -a”) 都将失效，所以请根据下面的提示手动设置参数.<br>
      脚本将查找所有分区，查找已经存在有efi分区的磁盘，并将目标磁盘设置为该磁盘。<br>
      如果不存在efi分区，脚本将会把系统安装到/dev/sda中，将所有的硬盘剩余空间分配到同一个分区。（请保证有足够的磁盘空间来安装系统）<br>
      注意脚本可以自动识别目标磁盘中已经存在的efi分区，并将grub安装到该分区。<br>
-     自动安装的桌面环境为gnome。<br>
+     自动安装的桌面环境为Kde-plasma。<br>
 * -h 输出此帮助文本（脚本输出为英语）<br>
 * -p 设置自动分区 <br>
      设置如何分配目标磁盘的剩余空间。如： <br>
@@ -44,9 +56,10 @@
      给所有pacman加上--noconfirm参数。
      
 # 使用例子：
-* ./arch.sh -s <br>
+* ./arch.sh -u "admin:passwd" -a <br>
 自动查找有efi分区的磁盘，并将Arch安装到其剩余的磁盘空间中。<br>
 如果没有找到有efi分区的磁盘，将默认安装到/dev/sda。<br>
+同时，设置新用户为admin, 密码passwd
 
 * ./arch.sh -p "256M,FULL" <br>
 将Arch安装到/dev/sda中，并且分配两个分区，一个256MB，另一个将占用剩余的未分配磁盘空间 <br>
@@ -59,4 +72,4 @@
 在legacy环境中，将自动给启动分区加上启动标签。 <br>
      
 * 一次性到位安装指令，推荐先在虚拟机环境中尝试 <br>
-pacman -Sy git --noconfirm && git clone https://github.com/iceshroom/Arch-Install && cd Arch-Install && chmod a+x arch.sh && ./arch.sh -s 
+pacman -Sy git --noconfirm && git clone https://github.com/iceshroom/Arch-Install && cd Arch-Install && chmod a+x arch.sh && ./arch.sh -a 
