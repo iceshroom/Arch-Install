@@ -47,10 +47,11 @@ PROTECT_DISK=''
 PACKAGE=( linux linux-firmware grub efibootmgr os-prober vim gcc alsa-utils ntfs-3g bash-completion networkmanager net-tools archlinuxcn-keyring ttf-dejavu wqy-zenhei wqy-microhei )
 
 #自定义桌面环境
-GNOME_DESKTOP=( wayland xorg gnome gdm gnome-tweak-tool gnome-terminal )
-DEEPIN_DESKTOP=( wayland xorg deepin lightdm lightdm-deepin-greeter deepin-terminal )
-DESKTOP=(${GNOME_DESKTOP[@]})
-DE='g'
+GNOME_DESKTOP=( gnome gdm gnome-tweak-tool gnome-terminal firefox )
+KDE_DESKTOP=( plasma konsole firefox )
+DESKTOP=(${KDE_DESKTOP[@]})
+DE='k'
+USERNAMEANDPASSWD=( admin admin123 )
 
 ###############################
 
@@ -60,12 +61,17 @@ print_help()
     echo -e "Archiso auto install and configure script by ${yellow} ice-shroom ${plain}
 
     -d Specify installation disk，please use: -d /dev/sd* , Default is/dev/sda
+    
+    -u specify a user name and password pair add to your new system, It will be add to group wheel to enable sudo
+       use like: -u \"username:passwd\"
 
-    -g Set Desktop environment. Follow g set to gnome.  Follow d set to DDE ,Default is gnome.
-       Use: -g [dg]
+    -g Set Desktop environment. Follow g set to gnome.  Follow k set to KDE ,Default is KDE.
+       Use: -g [kg]
 
-    -s Default mode, ${red}(Best use this select when no other partition in your disk) ${plain}，
-       Running scripts with default values，If this parameter is used, all other parameters will fail.
+    -a Auto mode, ${red}(Best use this select when no other partition in your disk) ${plain}，
+       Running scripts with default values，If this parameter is used, all other parameters will be ignore.
+       But you can use -u option before -a, you need to use -u before -a, like : " -u \"admin:admin123\" -a "
+       otherwise -a will be dismiss.
  ${red}Be careful${plain}，When using this parameter, 
        the automatic partition will allocate 256MB (1MB If is BIOS boot on GPT) 
        as ${red} /boot/efi (Be \"bios boot\" If is BIOS boot on GPT) ${plain} by default and 
@@ -351,31 +357,40 @@ deal_opt()
                    print_help
                    i=$(($i+1))
                    ;;
+	    "-u")  
+                   i=$(($i+1))
+		   USERNAMEANDPASSWD=$( echo ${opt[$i]} | sed 's/:/\ /g' )
+		   if [ ${#array_name[@]} ！= 2 ] ; then
+		   	echo "${red}please use : -u \"username:passwd\"${plain}"
+			exit 1
+		   fi
+		   i=$(($i+1))
+                   ;;
             "-g")
                    i=$(($i+1))
                    if [ "g" =  "${opt[$i]}" ];then
                         DESKTOP=(${GNOME_DESKTOP[@]})
                         DE='g'
                         echo -e "${yellow} Select Gnome ${plain}"
-                   elif [ "d" =  "${opt[$i]}" ];then
-                        DESKTOP=(${DEEPIN_DESKTOP[@]})
-                        DE='d'
-                        echo -e "${yellow} Select DDE ${plain}"
+                   elif [ "k" =  "${opt[$i]}" ];then
+                        DESKTOP=(${KDE_DESKTOP[@]})
+                        DE='k'
+                        echo -e "${yellow} Select KDE ${plain}"
                    fi
                    i=$(($i+1))
                    ;;
-            "-s")  
+            "-a")  
                    if [ "$IS_UEFI" == "1" ] ; then
                         if [ -z "$BOOT_PARTITION" ] ; then
-                            deal_opt -y -p "256M,FULL" -g g
+                            deal_opt -y -p "256M,FULL" -g k
                         else
-                            deal_opt -y -p "FULL" -g g
+                            deal_opt -y -p "FULL" -g k
                         fi
                    else
                         if [ "$IS_GPT" == "1"  ] ; then
-                            deal_opt -y -p "1M,FULL" -g g
+                            deal_opt -y -p "1M,FULL" -g k
                         else
-                            deal_opt -y -p "FULL" -g g
+                            deal_opt -y -p "FULL" -g k
 			fi
                    fi
                    break
@@ -479,7 +494,11 @@ if [ "$IS_UEFI" == "1" ] && [ "${BOOT_PARTITION}" == "" ] ; then
 fi
 
 echo -e "${red}root(/) locate at: $INSTALL_PARTITION"
-echo -e "/boot/efi locate at: $BOOT_PARTITION ${plain}"
+if [ "$IS_UEFI" -eq '1' ] ; then
+    echo -e "${red}/boot/efi locate at: $BOOT_PARTITION ${plain}"
+else
+    echo -e "${red}Boot-able partition locate at: $BOOT_PARTITION ${plain}"
+fi
 sleep 1
 
 
@@ -539,7 +558,7 @@ done
 pacstrap /mnt base base-devel $NOCONFIRM
 while [ "$?" -ne "0" ]
 do
-        pacstrap /mnt base base-devel $NOCONFIRM
+    pacstrap /mnt base base-devel $NOCONFIRM
 done
 
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -581,13 +600,18 @@ fi
 echo '
 echo "DNS=8.8.8.8" >> /etc/systemd/resolved.conf
 grub-mkconfig -o /boot/grub/grub.cfg
-useradd -m -G wheel admin
-echo "admin:admin123" | chpasswd 
+useradd -m -G wheel ${USERNAMEANDPASSWD[1]}
+if [ "$?" -ne "0" ] ; then
+    useradd -m -G wheel admin
+    echo "admin:admin123" | chpasswd 
+else
+    echo "${USERNAMEANDPASSWD[1]}"":""${USERNAMEANDPASSWD[2]}" | chpasswd
+fi
 echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 ' >> /mnt/set.sh
 
-if [ "$DE" == "d" ];then
-    echo 'systemctl enable lightdm.service' >> /mnt/set.sh
+if [ "$DE" == "k" ];then
+    echo 'systemctl enable sddm.service' >> /mnt/set.sh
 else
     echo 'systemctl enable gdm.service' >> /mnt/set.sh
 fi
