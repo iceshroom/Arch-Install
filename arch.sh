@@ -68,7 +68,7 @@ print_help()
     -g Set Desktop environment. Follow g set to gnome.  Follow k set to KDE ,Default is KDE.
        Use: -g [kg]
 
-    -a Auto mode, ${red}(Best use this select when no other partition in your disk) ${plain}，
+    -a Auto mode, ${red}(Best use this select when no other partition in your disk) ${plain},
        Running scripts with default values，If this parameter is used, all other parameters will be ignore.
        But you can use -u option before -a, you need to use -u before -a, like : " -u \"admin:admin123\" -a "
        otherwise -a will be dismiss.
@@ -89,10 +89,10 @@ print_help()
        If the partition fails (the expected number of partitions is less than the actual number of partitions), 
        the script exits directly.
 
-    -r/--rootdisk Specify\"${red} / ${plain}\" partition，
+    -r/--rootdisk Specify\"${red} / ${plain}\" partition,
        Use : --rootdisk 1~128 or -r 1~128 (GPT),Default is the second partition make by Auto partition.
 
-    -b/--bootdisk Specify\"${red} /boot/efi ${plain}\"partition，
+    -b/--bootdisk Specify\"${red} /boot/efi ${plain}\"partition,
        Use : --bootdisk 1~128 or -b 1~128 (GPT), If no partition on the disk and -s is Used , 
        It will be automated create ，If there was already a EFI partition, It will be auto detect and use.
 
@@ -360,7 +360,7 @@ deal_opt()
 	    "-u")  
                    i=$(($i+1))
 		   USERNAMEANDPASSWD=( $(echo ${opt[$i]} | sed 's/:/\ /g') )
-		   if [ ${#array_name[@]} -ne '2' ] ; then
+		   if [ ${#USERNAMEANDPASSWD[@]} -ne '2' ] ; then
 		   	echo -e "${red}please use : -u \"username:passwd\"${plain}"
 			exit 1
 		   fi
