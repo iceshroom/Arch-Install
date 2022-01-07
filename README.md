@@ -10,7 +10,7 @@
 * 修复若干小bug
 
 ##欢迎各位使用，如果喜欢，请在bilibili关注Asoul！
-
+![Asoul](PleaseFollowAsoul!.png)
 
 
 ## 如果不使用-u参数，脚本将自动添加用户：admin ，密码为 admin123 .
