@@ -603,7 +603,7 @@ echo "
 echo \"DNS=8.8.8.8\" >> /etc/systemd/resolved.conf
 grub-mkconfig -o /boot/grub/grub.cfg
 useradd -m -G wheel ${USERNAMEANDPASSWD[0]}
-if [ \"$?\" -ne \"0\" ] ; then
+if [ \"\$?\" -ne \"0\" ] ; then
     useradd -m -G wheel admin
     echo \"admin:admin123\" | chpasswd 
 else
