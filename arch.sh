@@ -602,12 +602,12 @@ fi
 echo "
 echo \"DNS=8.8.8.8\" >> /etc/systemd/resolved.conf
 grub-mkconfig -o /boot/grub/grub.cfg
-useradd -m -G wheel ${USERNAMEANDPASSWD[1]}
+useradd -m -G wheel ${USERNAMEANDPASSWD[0]}
 if [ \"$?\" -ne \"0\" ] ; then
     useradd -m -G wheel admin
     echo \"admin:admin123\" | chpasswd 
 else
-    echo \"${USERNAMEANDPASSWD[1]}\" \":\" \"${USERNAMEANDPASSWD[2]}\" | chpasswd
+    echo \"${USERNAMEANDPASSWD[0]}\" \":\" \"${USERNAMEANDPASSWD[1]}\" | chpasswd
 fi
 echo \"%wheel ALL=(ALL) ALL\" >> /etc/sudoers
 " >> /mnt/set.sh
@@ -634,7 +634,7 @@ umount /mnt
 
 echo -e "${green} All work has been completed! ${plain}"
 sleep 2
-echo -e "${green} Thank for your Using ${USERNAMEANDPASSWD[1]} ! And Most Important thing!!! ${plain}"
+echo -e "${green} Thank for your Using ${USERNAMEANDPASSWD[0]} ! And Most Important thing!!! ${plain}"
 sleep 2
 echo -e "${green} Please Follow Asoul At bilibili !!!!!!!!:
 Carol
