@@ -359,7 +359,8 @@ deal_opt()
                    ;;
 	    "-u")  
                    i=$(($i+1))
-		   USERNAMEANDPASSWD=( $(echo ${opt[$i]} | sed 's/:/\ /g') )
+		   dump=$(echo ${opt[$i]} | sed 's/:/\ /g')
+		   USERNAMEANDPASSWD=(${dump})
 		   if [ ${#USERNAMEANDPASSWD[@]} -ne '2' ] ; then
 		   	echo -e "${red}please use : -u \"username:passwd\"${plain}"
 			exit 1
@@ -606,7 +607,7 @@ if [ \"$?\" -ne \"0\" ] ; then
     useradd -m -G wheel admin
     echo \"admin:admin123\" | chpasswd 
 else
-    echo \"${USERNAMEANDPASSWD[1]}\"\":\"\"${USERNAMEANDPASSWD[2]}\" | chpasswd
+    echo \"${USERNAMEANDPASSWD[1]}\" \":\" \"${USERNAMEANDPASSWD[2]}\" | chpasswd
 fi
 echo \"%wheel ALL=(ALL) ALL\" >> /etc/sudoers
 " >> /mnt/set.sh
