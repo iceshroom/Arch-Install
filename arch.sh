@@ -634,21 +634,8 @@ umount /mnt
 
 echo -e "${green} All work has been completed! ${plain}"
 sleep 2
-echo -e "${green} Thank for your Using ${USERNAMEANDPASSWD[0]} ! And Most Important thing!!! ${plain}"
+echo -e "${green} Thank for your Using ${USERNAMEANDPASSWD[0]} ${plain}"
 sleep 2
-echo -e "${green} Please Follow Asoul At bilibili !!!!!!!!:
- Carol
- https://space.bilibili.com/351609538
- Diana
- https://space.bilibili.com/672328094
- Eileen
- https://space.bilibili.com/672342685
- Bella
- https://space.bilibili.com/672353429
- Ava
- https://space.bilibili.com/672346917
-${plain}"
-sleep 1
 echo -e "${green} Now you can eject iso disk then reboot! Enjoy your New system ! ${plain}"
 
 exit 0
