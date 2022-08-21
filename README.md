@@ -1,29 +1,11 @@
 # Arch-Install
 ## Arch linux 自动安装脚本
-## 乐你带我走吧乐😭
 ## 2022-01-07 更新：
-* 新增Asoul引流结束语
 * 新增自定义用户与密码的功能
 * 将-s参数改名为-a
 * 移除dde桌面环境的选项，现在可选项为KDE-plasma与Gnome, 默认KDE-plasma
 * 修复了一些文本输出的问题
 * 修复若干小bug
-
-##欢迎各位使用，如果喜欢，请在bilibili关注Asoul！ <br>
- Carol<br>
- https://space.bilibili.com/351609538 <br>
- Diana<br>
- https://space.bilibili.com/672328094 <br>
- Eileen <br>
- https://space.bilibili.com/672342685 <br>
- Bella<br>
- https://space.bilibili.com/672353429 <br>
- Ava <br>
- https://space.bilibili.com/672346917 <br>
- 
- 
-![Asoul](PleaseFollowAsoul!.png)
-
 
 ## 如果不使用-u参数，脚本将自动添加用户：admin ，密码为 admin123 .
 ## More detail please run ./arch.sh or ./arch.sh -h
