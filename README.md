@@ -1,9 +1,8 @@
 # Arch-Install
 ## Arch linux 自动安装脚本
-## 2022-01-07 更新：
-* 新增自定义用户与密码的功能
-* 将-s参数改名为-a
-* 移除dde桌面环境的选项，现在可选项为KDE-plasma与Gnome, 默认KDE-plasma
+## 2024-02-15 更新：
+* 更改 / 使用的分区格式为xfs
+* archlinuxcn 源 加入参数 SigLevel = Optional TrustAll 
 * 修复了一些文本输出的问题
 * 修复若干小bug
 
