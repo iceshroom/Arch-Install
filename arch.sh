@@ -93,7 +93,7 @@ print_help()
        Use : --rootdisk 1~128 or -r 1~128 (GPT),Default is the second partition make by Auto partition.
 
     -b/--bootdisk Specify\"${red} /boot/efi ${plain}\"partition,
-       Use : --bootdisk 1~128 or -b 1~128 (GPT), If no partition on the disk and -s is Used , 
+       Use : --bootdisk 1~128 or -b 1~128 (GPT), If no partition on the disk and -a is Used ,
        It will be automated create ，If there was already a EFI partition, It will be auto detect and use.
 
     -y  Auto select yes, In the same time pacman will use --noconfirm.
@@ -301,6 +301,7 @@ set_mirror()
     mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.back
     echo "Server = https://mirrors.ustc.edu.cn/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
     echo '[archlinuxcn]
+SigLevel = Optional TrustAll
 Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
 ' >> /etc/pacman.conf
 }
@@ -534,7 +535,7 @@ if [ "$IS_UEFI" -eq '0' ] ; then
     BOOT_PARTITION_NUM=$( echo $BOOT_PARTITION | sed "s/\/dev\/sd.//g" )
     echo -e "a\n${BOOT_PARTITION_NUM}\n\nw" | fdisk -B $TARGET_DISK
 fi
-mkfs.ext4 $INSTALL_PARTITION
+mkfs.xfs -f $INSTALL_PARTITION
 
 
 mount $INSTALL_PARTITION /mnt
@@ -582,6 +583,7 @@ echo '127.0.0.1       localhost
 127.0.1.1       Arch.localdomain  Arch' >> /mnt/etc/hosts
 
 echo '[archlinuxcn]
+SigLevel = Optional TrustAll
 Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
 ' >> /mnt/etc/pacman.conf
 
